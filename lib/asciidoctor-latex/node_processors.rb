@@ -222,12 +222,12 @@ class Asciidoctor::Block
        title = title.gsub /\{.*?\}/, ""
        title = title.strip
      else
-       warn "Empty title".yellow if $VERBOSE
+       title = "Dummy"
      end
      warn ["Title: ".magenta, title.cyan, "style:", self.style].join(" ")
      warn ["Content:".magenta, "#{self.content}".yellow].join(" ") if $VERBOSE
      warn ["Style:".green, "#{self.style}".red].join(" ") if $VERBOSE
-     warn ["METHODS:".red, "#{self.mathods}".yellow].join(" ") if $VERBOSE
+     warn ["METHODS:".red, "#{self.methods}".yellow].join(" ") if $VERBOSE
      if !$latex_environment_names.include? title
        $latex_environment_names << title
      end
