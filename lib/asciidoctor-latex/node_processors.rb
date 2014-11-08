@@ -54,7 +54,7 @@ class Asciidoctor::Document
     definitions = ""
     $latex_environment_names.each do |name|
       puts name
-      definitions << "\\newtheorem\{#{name}\}\{#{name}\}" << "\n"
+      definitions << "\\newtheorem\{#{name}\}\{#{name.capitalize}\}" << "\n"
     end
     File.open('new_environments.tex', 'w') { |f| f.write(definitions) }
     
@@ -244,9 +244,9 @@ class Asciidoctor::Block
      # construct the LaTeX for this node
      if self.attributes["style"] == "env"
        env = self.attributes["role"]
-       # record any environtemnts encounted but not built=in
+       # record any environments encounted but not built=in
        if !STANDARD_ENVIRONMENT_NAMES.include? env
-         $latex_environment_names << title
+         $latex_environment_names << env
        end
        if self.id == nil # No label
          "\\begin\{#{env}\}\n#{self.content}\n\\end\{#{env}\}\n"
