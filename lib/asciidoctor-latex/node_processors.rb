@@ -18,6 +18,10 @@ class Asciidoctor::Document
   #   macro definitions.  In noteshare there is a database
   #   field 
   #
+  
+  
+  
+  
   def tex_process    
     data_dir = File.join File.dirname(__FILE__), '..', '..', 'data'
     warn "Node: #{self.class}".blue if $VERBOSE
@@ -50,7 +54,7 @@ class Asciidoctor::Document
     definitions = ""
     $latex_environment_names.each do |name|
       puts name
-      definitions << "\\newtheorem\{#{name}\}\{#{name}\}" << "\n"
+      definitions << "\\newtheorem\{#{name}\}\{#{name.capitalize}\}" << "\n"
     end
     File.open('new_environments.tex', 'w') { |f| f.write(definitions) }
     
@@ -124,6 +128,8 @@ end
 
 # Proces block elements of varios kinds
 class Asciidoctor::Block
+  
+  STANDARD_ENVIRONMENT_NAMES = %w(theorem proposition lemma definition example problem)
   
   def tex_process
     warn ["Node:".blue , "#{self.blockname}".blue].join(" ") if $VERBOSE
@@ -214,31 +220,42 @@ class Asciidoctor::Block
   # of either other than their form.
   #
   def open_process
+    
+    # Get title !- nil or make a dummy one
+    title = self.attributes["title"]
+    if title == nil
+      title = "Dummy"
+    end
+         
+     # Report on this node
      warn ["OPEN BLOCK:".magenta, "id: #{self.id}"].join(" ") if $VERBOSE
      warn ["Node:".magenta, "#{self.blockname}".cyan].join(" ") if $VERBOSE
      warn ["Attributes:".magenta, "#{self.attributes}".cyan].join(" ") if $VERBOSE
-     title = self.attributes["title"]
-     if title
-       title = title.gsub /\{.*?\}/, ""
-       title = title.strip
-     else
-       title = "Dummy"
-     end
      warn ["Title: ".magenta, title.cyan, "style:", self.style].join(" ")
      warn ["Content:".magenta, "#{self.content}".yellow].join(" ") if $VERBOSE
      warn ["Style:".green, "#{self.style}".red].join(" ") if $VERBOSE
      warn ["METHODS:".red, "#{self.methods}".yellow].join(" ") if $VERBOSE
-     if !$latex_environment_names.include? title
-       $latex_environment_names << title
+          
+     # strip constructs like {counter:theorem} from the title
+     title = title.gsub /\{.*?\}/, ""
+     title = title.strip
+
+     
+     # construct the LaTeX for this node
+     if self.attributes["style"] == "env"
+       env = self.attributes["role"]
+       # record any environments encounted but not built=in
+       if !STANDARD_ENVIRONMENT_NAMES.include? env
+         $latex_environment_names << env
+       end
+       if self.id == nil # No label
+         "\\begin\{#{env}\}\n#{self.content}\n\\end\{#{env}\}\n"
+       else
+         "\\begin\{#{env}\}\n\\label\{#{self.id}\}\n#{self.content}\\end\{#{env}\}\n"
+       end
+       # What do we do if style != "env"?
      end
-     # Write unique labels, as informative as possible:
-     if self.id == nil
-       $label_counter += 1
-       label_text = "#{title.downcase}:#{$label_counter}"
-     else
-       label_text = self.id
-     end
-     "\\begin\{#{title}\}\n\\label\{#{label_text}\}\n#{self.content}\n\\end\{#{title}\}\n"
+     
   end
   
   def listing_process
