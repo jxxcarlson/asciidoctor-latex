@@ -125,15 +125,23 @@ module Asciidoctor::LaTeX
         puts "$ref2counter: #{attrs['id']} => #{$counter[env_name].to_s}".yellow
       end
 
-
+      warn "caption: #{attrs['caption']}".yellow if $VERBOSE
+      attrs['title'] = env_name.capitalize
+      caption = attrs.delete 'caption'
+      warn "caption: #{attrs['caption']}".cyan if $VERBOSE
+      
       warn "env_name: #{env_name}".cyan if $VERBOSE
       warn "end EnvironmentBlock\n".blue if $VERBOSE
 
       if attrs['role'] == 'code'
-        create_block parent, :listing, reader.lines, attrs
+        block = create_block parent, :listing, reader.lines, attrs
       else
-        create_block parent, :environment, reader.lines, attrs
+        block = create_block parent, :environment, reader.lines, attrs
       end
+
+      block.assign_caption caption, 'environment'
+      warn "caption: #{attrs['caption']}".magenta if $VERBOSE
+      block
 
     end
 
