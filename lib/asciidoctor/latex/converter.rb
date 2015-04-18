@@ -146,9 +146,11 @@ require 'asciidoctor/latex/chem'
 $VERBOSE = true
 
 
-# code for Html5ConverterExtension & its insertion
-# template by @mojavelinux
+
 module Asciidoctor::LaTeX
+
+  # code for Html5ConverterExtension & its insertion
+  # template by @mojavelinux
   module Html5ConverterExtensions
 
     ENV_CSS = "+++<div style='line-height:1.5em;font-size:1.05em;font-style:oblique;margin-bottom:1.5em'>+++"
@@ -161,6 +163,8 @@ module Asciidoctor::LaTeX
 
     end
 
+    # Dispatches a handler for the _node_ (`NODE`)
+    # based on its role.
     def environment node
 
       attrs = node.attributes
